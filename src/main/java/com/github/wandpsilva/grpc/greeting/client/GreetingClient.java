@@ -1,8 +1,6 @@
 package com.github.wandpsilva.grpc.greeting.client;
 
-import com.proto.dummy.DummyServiceGrpc;
-import com.proto.greet.GreetRequest;
-import com.proto.greet.GreetResponse;
+import com.proto.greet.GreetManyTimesRequest;
 import com.proto.greet.GreetServiceGrpc;
 import com.proto.greet.Greeting;
 import io.grpc.ManagedChannel;
@@ -20,23 +18,36 @@ public class GreetingClient {
         //creating a greet service client (blockingstub for synchronous)
         GreetServiceGrpc.GreetServiceBlockingStub greetClient = GreetServiceGrpc.newBlockingStub(channel);
 
-        //creating protobuf greeting message
-        Greeting greeting = Greeting.newBuilder()
-                .setFirstName("Wander")
-                .setLastName("P da Silva")
+        //UNARY
+//        //creating protobuf greeting message
+//        Greeting greeting = Greeting.newBuilder()
+//                .setFirstName("Wander")
+//                .setLastName("P da Silva")
+//                .build();
+//
+//        //creating protobuf greeting message
+//        GreetRequest greetRequest = GreetRequest.newBuilder()
+//                .setGreeting(greeting)
+//                .build();
+//
+//        //creating protobuf greeting response
+//        GreetResponse greetResponse = greetClient.greet(greetRequest);
+//
+//        System.out.println(greetResponse.getResult());
+//
+
+        //SERVER STREAMING
+
+        GreetManyTimesRequest greetManyTimesRequest = GreetManyTimesRequest.newBuilder()
+                .setGreeting(Greeting.newBuilder().setFirstName("Wander"))
                 .build();
 
-        //creating protobuf greeting message
-        GreetRequest greetRequest = GreetRequest.newBuilder()
-                .setGreeting(greeting)
-                .build();
-
-        //creating protobuf greeting response
-        GreetResponse greetResponse = greetClient.greet(greetRequest);
-
-        System.out.println(greetResponse.getResult());
+        greetClient.greetManyTimes(greetManyTimesRequest).forEachRemaining(greetManyTimesResponse -> {
+            System.out.println(greetManyTimesResponse.getResult());
+        });
 
         System.out.println("shutting down gRPC client");
         channel.shutdown();
+
     }
 }

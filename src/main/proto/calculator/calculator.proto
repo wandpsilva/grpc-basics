@@ -18,7 +18,17 @@ message CalculatorResponse {
     string result = 1;
 }
 
+message PrimeNumberDecompositionRequest {
+    int64 number = 1;
+}
+
+message PrimeNumberDecompositionResponse {
+    int64 prime_factor = 1;
+}
+
 service CalculatorService  {
     rpc calculator(CalculatorMessage) returns (CalculatorResponse) {};
+
+    rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest) returns (stream PrimeNumberDecompositionResponse) {};
 }
 
