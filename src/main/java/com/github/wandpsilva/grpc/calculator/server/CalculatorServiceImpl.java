@@ -38,4 +38,34 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
         }
         responseObserver.onCompleted();
     }
+
+    @Override
+    public StreamObserver<ComputeAverageRequest> computeAverage(StreamObserver<ComputeAverageResponse> responseObserver) {
+        StreamObserver<ComputeAverageRequest> requestObserver = new StreamObserver<ComputeAverageRequest>() {
+
+            int sum = 0;
+            int count = 0;
+
+            @Override
+            public void onNext(ComputeAverageRequest value) {
+                sum = sum + value.getNumber();
+                count = count + 1;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                //nothing here for while
+            }
+
+            @Override
+            public void onCompleted() {
+                double avg = (double) sum / count;
+                responseObserver.onNext(ComputeAverageResponse.newBuilder()
+                        .setAverage(avg)
+                        .build());
+                responseObserver.onCompleted();
+            }
+        };
+        return requestObserver;
+    }
 }
