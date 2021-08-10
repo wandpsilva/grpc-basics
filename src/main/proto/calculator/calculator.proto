@@ -34,11 +34,23 @@ message ComputeAverageResponse {
      double average = 1;
 }
 
+message SquareRootRequest {
+    int32 number = 1;
+}
+
+message SquareRootResponse {
+    double number_root = 1;
+}
+
 service CalculatorService  {
     rpc calculator(CalculatorMessage) returns (CalculatorResponse) {};
 
     rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest) returns (stream PrimeNumberDecompositionResponse) {};
 
     rpc computeAverage(stream ComputeAverageRequest) returns (ComputeAverageResponse) {};
+
+    //error handling
+    //this RPC will thrown an INVALID_ARGUMENT exception if the number is negative
+    rpc SquareRoot(SquareRootRequest) returns (SquareRootResponse) {};
 }
 

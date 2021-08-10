@@ -7,6 +7,8 @@ import com.proto.greet.GreetServiceGrpc;
 import com.proto.greet.Greeting;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.CountDownLatch;
@@ -29,10 +31,27 @@ public class CalculatorClient {
 
         //doUnaryCall(channel);
         //doServerStreamingCall(channel);
-        doClientStreamingCall(channel);
+        //doClientStreamingCall(channel);
+        doErrorCall(channel);
 
         System.out.println("shutting down gRPC client");
         channel.shutdown();
+    }
+
+    private void doErrorCall(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub blockingStub = CalculatorServiceGrpc.newBlockingStub(channel);
+
+        int number = -1;
+
+        try {
+            blockingStub.squareRoot(SquareRootRequest.newBuilder()
+                    .setNumber(number)
+                    .build());
+        } catch (StatusRuntimeException ex) {
+            System.out.println("Got and exception: ");
+            ex.printStackTrace();
+        }
+
     }
 
     private void doServerStreamingCall(ManagedChannel channel) {
