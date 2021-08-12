@@ -1,8 +1,8 @@
 package com.github.wandpsilva.grpc.greeting.client;
 
+import com.proto.calculator.CalculatorServiceGrpc;
 import com.proto.greet.*;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Arrays;
@@ -28,11 +28,49 @@ public class GreetingClient {
         //doUnaryCall(channel);
         //doServersStreaming(channel);
         //doClientStreamingCall(channel);
-
-        doBiDiStreamingCall(channel);
+        //doBiDiStreamingCall(channel);
+        doUnaryCallWithDeadline(channel);
 
         System.out.println("shutting down gRPC client");
         channel.shutdown();
+    }
+
+    private void doUnaryCallWithDeadline(ManagedChannel channel) {
+        GreetServiceGrpc.GreetServiceBlockingStub blockingStub = GreetServiceGrpc.newBlockingStub(channel);
+
+        //first call 3000 ms deadline
+        try {
+            System.out.println("Sending a request with a deadline of 3000ms");
+            GreetWithDeadlineResponse response = blockingStub.withDeadline(Deadline.after(3000, TimeUnit.MILLISECONDS))
+                    .greetWithDeadline(GreetWithDeadlineRequest.newBuilder()
+                            .setGreeting(Greeting.newBuilder()
+                                    .setFirstName("Wander"))
+                            .build());
+            System.out.println(response.getResult());
+        } catch (StatusRuntimeException ex) {
+            if(ex.getStatus() == Status.DEADLINE_EXCEEDED) {
+                System.out.print("Deadline has been exceeded, we don't want the response!");
+            } else {
+                ex.printStackTrace();
+            }
+        }
+
+        //first call 100 ms deadline
+        try {
+            System.out.println("Sending a request with a deadline of 100ms");
+            GreetWithDeadlineResponse response = blockingStub.withDeadline(Deadline.after(100, TimeUnit.MILLISECONDS))
+                    .greetWithDeadline(GreetWithDeadlineRequest.newBuilder()
+                            .setGreeting(Greeting.newBuilder()
+                                    .setFirstName("Wander"))
+                            .build());
+            System.out.println(response.getResult());
+        } catch (StatusRuntimeException ex) {
+            if(ex.getStatus() == Status.DEADLINE_EXCEEDED) {
+                System.out.print("Deadline has been exceeded, we don't want the response!");
+            } else {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void doBiDiStreamingCall(ManagedChannel channel) {
